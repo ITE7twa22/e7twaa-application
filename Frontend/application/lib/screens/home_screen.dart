@@ -74,7 +74,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (distance > 10.000) {
-       _showErrorDialog("يبدو أنك خارج الموقع المحدد لتسجيل الدخول، تأكد من وجودك في المكان الصحيح وحول مرة أخرى");
+       _showErrorDialog("يبدو أنك خارج الموقع المحدد لتسجيل الدخول.\n"
+    "تأكد من وجودك في المكان الصحيح ثم حاول مرة أخرى.");
     }
     else{
     if (!checkIn) {
@@ -138,7 +139,12 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("خطأ"),
+        title: const Text("خطأ",
+  textAlign: TextAlign.right, 
+  textDirection: TextDirection.rtl, 
+),
+centerTitle: true, 
+
         content: Text(message),
         actions: [
           TextButton(
