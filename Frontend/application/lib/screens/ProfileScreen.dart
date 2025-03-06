@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
 import 'Volunteer_Journey.dart';
 
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -14,8 +15,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreen extends State<ProfileScreen> {
   int _selectedIndex = 0;
   String userName = '';  // Initial value
-  String status = ''; 
-   String phoneNumber = ''; // Initial value
+  String status = '';
+  String phoneNumber = ''; // Initial value
 
   @override
   void initState() {
@@ -24,7 +25,7 @@ class _ProfileScreen extends State<ProfileScreen> {
     getNameUser();
   }
 
-   void _onItemTapped(int index) {
+  void _onItemTapped(int index) {
     if (index == 1) {
       Navigator.pushReplacement(
         context,
@@ -37,7 +38,7 @@ class _ProfileScreen extends State<ProfileScreen> {
         MaterialPageRoute(builder: (context) =>  VolunteerJourneyScreen()),
       );
     }
-   }
+  }
 
   Future<void> getNameUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -57,99 +58,99 @@ class _ProfileScreen extends State<ProfileScreen> {
   }
 
   void _showUserDataSheet() {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (context) {
-      return Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(30),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Text(
-                    'بياناتي',
-                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(height: 30),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    'الاسم',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(height: 10),
-               Align(
-  alignment: Alignment.centerRight,
-  child: Text(
-    userName,
-    textAlign: TextAlign.right,
-  ),
-)
-,
-
-                SizedBox(height: 30),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    'الرقم',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Row(
-                  
-              children: [
-  Align(
-    alignment: Alignment.centerRight,
-          child: Text(
-        phoneNumber,
-        textAlign: TextAlign.right,
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-    ),
-  
-],
-                ),
-                SizedBox(height: 90),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // Close the bottom sheet
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFBB040),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(30),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Text(
+                      'بياناتي',
+                      style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 115, vertical: 10),
-                      child: Text(
-                        'إغلاق',
-                        style: TextStyle(color: Colors.white, fontSize: 26),
+                  ),
+                  SizedBox(height: 30),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'الاسم',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      userName,
+                      textAlign: TextAlign.right,
+                    ),
+                  )
+                  ,
+
+                  SizedBox(height: 30),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'الرقم',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+
+                    children: [
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          phoneNumber,
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+
+                    ],
+                  ),
+                  SizedBox(height: 90),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Close the bottom sheet
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFFBB040),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 115, vertical: 10),
+                        child: Text(
+                          'إغلاق',
+                          style: TextStyle(color: Colors.white, fontSize: 26),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
 
   void _showCertificatesSheet() {
@@ -172,46 +173,11 @@ class _ProfileScreen extends State<ProfileScreen> {
                     child: Text('شهاداتي',
                         style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
                   ),
-                  SizedBox(height: 30),
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          children: [
-                            Icon(Icons.download, color: Color(0xFFFBB040)),
-                            SizedBox(height: 10),
-                            Icon(Icons.edit, color: Color(0xFFFBB040)),
-                          ],
-                        ),
-                        SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text('pdf. مشاعل العبدالكريم',
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
-                              Text(
-                                '197KB - 22 December 2024 at 3:36 PM',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 13,
-                                ),
-                                textAlign: TextAlign.right,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Image.asset('assets/PDF_file.png', width: 60, height: 60),
-                      ],
-                    ),
+                  Center(
+                    child: Text('.... قريبا ',
+                        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
                   ),
-                  SizedBox(height: 60),
+
                 ],
               ),
             ),
@@ -281,7 +247,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                 Column(
                   children: [
                     Text(
-                     userName,
+                      userName,
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -305,7 +271,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                 _buildProfileOptionContainerContactUs(
                   'تواصل معنا',
                   Icons.phone_outlined,
-                  () => _launchURL('https://forms.gle/aoeoqR64c9nQEAYi6'),
+                      () => _launchURL('https://forms.gle/aoeoqR64c9nQEAYi6'),
                 ),
                 const SizedBox(height: 15),
                 _buildProfileOptionContainer('تسجيل الخروج', Icons.exit_to_app, color: Colors.red),
