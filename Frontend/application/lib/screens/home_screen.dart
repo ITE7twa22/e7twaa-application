@@ -135,15 +135,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showErrorDialog(String message) {
+void _showErrorDialog(String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("خطأ",
-  textAlign: TextAlign.right, 
-  textDirection: TextDirection.rtl, 
-),
-centerTitle: true, 
+          textAlign: TextAlign.center,
+          textDirection: TextDirection.rtl,
+        ),
 
         content: Text(message),
         actions: [
