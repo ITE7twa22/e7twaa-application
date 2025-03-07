@@ -83,7 +83,21 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
   }
-
+void _navigateToScreen(Widget screen) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        transitionDuration: Duration(milliseconds: 500),
+        pageBuilder: (context, animation, secondaryAnimation) => screen,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
   void __showErrorDialogConfirm(String token, String m) {
     showDialog(
       context: context,
@@ -151,9 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _onItemTapped(int index) {
-    print('Tapped index: $index');
-
+void _onItemTapped(int index) {
     if (index == _selectedIndex) return;
 
     setState(() {
@@ -162,21 +174,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     switch (index) {
       case 0:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const ProfileScreen()),
-        );
+        _navigateToScreen(const ProfileScreen());
         break;
       case 1:
         break;
       case 2:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const VolunteerJourneyScreen()),
-        );
-        break;
-      default:
+        _navigateToScreen(const VolunteerJourneyScreen());
         break;
     }
   }
