@@ -37,7 +37,7 @@ class _ProfileScreenState extends State<ProfileScreenadmin> {
                     ),
                   ),
                   SizedBox(height: 30),
-                   Align(
+                  Align(
                     alignment: Alignment.centerRight,
                     child: Text(
                       'الاسم',
@@ -51,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreenadmin> {
                     ),
                   ),
                   SizedBox(height: 30),
-                   Align(
+                  Align(
                     alignment: Alignment.centerRight,
                     child: Text(
                       'الرقم',
@@ -59,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreenadmin> {
                     ),
                   ),
                   SizedBox(height: 10),
-                   Row(
+                  Row(
                     children: [
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
@@ -104,7 +104,40 @@ class _ProfileScreenState extends State<ProfileScreenadmin> {
       },
     );
   }
+  void _navigateToScreen(Widget screen) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        transitionDuration: Duration(milliseconds: 100),
+        pageBuilder: (context, animation, secondaryAnimation) => screen,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
 
+  void _onItemTapped(int index) {
+    if (index == _selectedIndex) return;
+
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        break;
+        break;
+      case 1:
+        _navigateToScreen(const home_screen());
+      case 2:
+        _navigateToScreen(const VolunteerJourneyScreen());
+        break;
+    }
+  }
   void _showCertificatesSheet() {
     showModalBottomSheet(
       context: context,
@@ -227,7 +260,7 @@ class _ProfileScreenState extends State<ProfileScreenadmin> {
                           Text(
                             'ركن الجلابيات',
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF939697), // Use the color here
-                      ),
+                            ),
                           ),
                           SizedBox(width: 8),
                           Text(
