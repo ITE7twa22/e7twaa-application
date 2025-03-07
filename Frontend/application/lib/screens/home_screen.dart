@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'Volunteer_Journey.dart';
 import 'ProfileScreen.dart';
@@ -56,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
       desiredAccuracy: LocationAccuracy.high,
     );
 
-
     double distance = Geolocator.distanceBetween(
       workLatitude!,
       workLongitude!,
@@ -74,17 +72,16 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (distance > 10.000) {
-       _showErrorDialog("يبدو أنك خارج الموقع المحدد لتسجيل الدخول.\n"
-    "تأكد من وجودك في المكان الصحيح ثم حاول مرة أخرى.");
+      _showErrorDialog("يبدو أنك خارج الموقع المحدد لتسجيل الدخول.\n"
+          "تأكد من وجودك في المكان الصحيح ثم حاول مرة أخرى.");
     }
     else{
-    if (!checkIn) {
-      __showErrorDialogConfirm(token, "هل انت متأكد من تسجيل الدخول؟");
-    } else {
-      __showErrorDialogConfirm(token, "هل انت متأكد من تسجيل الخروج؟");
+      if (!checkIn) {
+        __showErrorDialogConfirm(token, "هل انت متأكد من تسجيل الدخول؟");
+      } else {
+        __showErrorDialogConfirm(token, "هل انت متأكد من تسجيل الخروج؟");
+      }
     }
-  }
-
   }
 
   void __showErrorDialogConfirm(String token, String m) {
@@ -135,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-void _showErrorDialog(String message) {
+  void _showErrorDialog(String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -143,7 +140,6 @@ void _showErrorDialog(String message) {
           textAlign: TextAlign.center,
           textDirection: TextDirection.rtl,
         ),
-
         content: Text(message),
         actions: [
           TextButton(
@@ -160,6 +156,10 @@ void _showErrorDialog(String message) {
 
     if (index == _selectedIndex) return;
 
+    setState(() {
+      _selectedIndex = index;
+    });
+
     switch (index) {
       case 0:
         Navigator.pushReplacement(
@@ -168,9 +168,6 @@ void _showErrorDialog(String message) {
         );
         break;
       case 1:
-        setState(() {
-          _selectedIndex = index;
-        });
         break;
       case 2:
         Navigator.pushReplacement(
@@ -261,7 +258,7 @@ void _showErrorDialog(String message) {
                     future: getNameUser(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator(); // Show loading while fetching
+                        return const CircularProgressIndicator();
                       } else if (snapshot.hasError) {
                         return const Text('Error fetching user');
                       } else if (snapshot.hasData) {
