@@ -112,7 +112,7 @@ class _VolunteerJourneyScreenState extends State<VolunteerJourneyScreen> {
         _navigateToScreen(const ProfileScreen());
         break;
       case 1:
-        _navigateToScreen(const home_screen());
+        _navigateToScreen(const HomeScreen());
        
       case 2:
         break;
