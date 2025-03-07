@@ -87,7 +87,7 @@ void _navigateToScreen(Widget screen) {
     Navigator.push(
       context,
       PageRouteBuilder(
-        transitionDuration: Duration(milliseconds: 500),
+        transitionDuration: Duration(milliseconds: 100),
         pageBuilder: (context, animation, secondaryAnimation) => screen,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(
