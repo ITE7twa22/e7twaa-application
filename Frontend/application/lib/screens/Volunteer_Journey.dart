@@ -10,10 +10,10 @@ class VolunteerJourneyScreen extends StatefulWidget {
 }
 
 class _VolunteerJourneyScreenState extends State<VolunteerJourneyScreen> {
-   int _selectedIndex = 2;
+  int _selectedIndex = 2;
   int _currentMonthIndex = 0;
 
-   final List<String> _months = [
+  final List<String> _months = [
     'يناير',
     'فبراير',
     'مارس',
@@ -29,7 +29,7 @@ class _VolunteerJourneyScreenState extends State<VolunteerJourneyScreen> {
   ];
   final int _currentYear = 2025;
 
-   final Map<String, List<Map<String, String>>> _volunteerData = {
+  final Map<String, List<Map<String, String>>> _volunteerData = {
     'يناير 2025': [
       {
         'day': '28',
@@ -71,7 +71,7 @@ class _VolunteerJourneyScreenState extends State<VolunteerJourneyScreen> {
     ],
   };
 
-   void _changeMonth(int direction) {
+  void _changeMonth(int direction) {
     setState(() {
       _currentMonthIndex += direction;
       if (_currentMonthIndex < 0) {
@@ -83,19 +83,45 @@ class _VolunteerJourneyScreenState extends State<VolunteerJourneyScreen> {
     });
   }
 
-   void _onItemTapped(int index) {
-     if (index == 0) {
+  void _onItemTapped(int index) {
+    if (index == 0) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const ProfileScreen()),
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const ProfileScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+
+            return SlideTransition(position: offsetAnimation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        ),
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+
+            return SlideTransition(position: offsetAnimation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        ),
       );
     }
-   }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,9 +137,8 @@ class _VolunteerJourneyScreenState extends State<VolunteerJourneyScreen> {
         showUnselectedLabels: false,
         onTap: _onItemTapped,
         items: const [
-          BottomNavigationBarItem(icon:  Icon(Icons.person_outline, size: 35), label: ""),
-          BottomNavigationBarItem( icon: Icon(Icons.home_outlined, size: 35), 
-            label: '',),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 35), label: ""),
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined, size: 35), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today_outlined), label: ''),
         ],
       ),
@@ -156,7 +181,7 @@ class _VolunteerJourneyScreenState extends State<VolunteerJourneyScreen> {
                     ],
                   ),
                 ),
-                 Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
@@ -178,7 +203,7 @@ class _VolunteerJourneyScreenState extends State<VolunteerJourneyScreen> {
                   ],
                 ),
                 const SizedBox(height: 5),
-                 Expanded(
+                Expanded(
                   child: ListView(
                     children: (_volunteerData[currentMonth] ?? [])
                         .map(
@@ -206,13 +231,13 @@ class _VolunteerJourneyScreenState extends State<VolunteerJourneyScreen> {
     );
   }
 
-   Widget _buildVolunteerRecord(String day, String weekday, String checkIn, String checkOut, String totalHours) {
+  Widget _buildVolunteerRecord(String day, String weekday, String checkIn, String checkOut, String totalHours) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-           Row(
+          Row(
             children: [
               _buildStatItem(Icons.access_time_outlined, checkIn, 'مجموع الساعات', Colors.black),
               const SizedBox(width: 20),
@@ -221,7 +246,7 @@ class _VolunteerJourneyScreenState extends State<VolunteerJourneyScreen> {
               _buildStatItem(Icons.access_time_outlined, totalHours, 'تسجيل الدخول', Colors.black),
             ],
           ),
-           Container(
+          Container(
             width: 65,
             height: 70,
             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -256,7 +281,7 @@ class _VolunteerJourneyScreenState extends State<VolunteerJourneyScreen> {
     );
   }
 
-   Widget _buildStatItem(IconData icon, String time, String label, Color iconColor) {
+  Widget _buildStatItem(IconData icon, String time, String label, Color iconColor) {
     return Column(
       children: [
         Icon(icon, size: 30, color: iconColor),
