@@ -24,19 +24,38 @@ class _ProfileScreen extends State<ProfileScreen> {
     // Load the user name when the screen is initialized
     getNameUser();
   }
+  void _navigateToScreen(Widget screen) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        transitionDuration: Duration(milliseconds: 100),
+        pageBuilder: (context, animation, secondaryAnimation) => screen,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
 
   void _onItemTapped(int index) {
-    if (index == 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    }
-    else if (index == 3) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) =>  VolunteerJourneyScreen()),
-      );
+    if (index == _selectedIndex) return;
+
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        break;
+        break;
+      case 1:
+        _navigateToScreen(const home_screen());
+      case 2:
+        _navigateToScreen(const VolunteerJourneyScreen());
+        break;
     }
   }
 
