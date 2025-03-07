@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
 import 'Volunteer_Journey.dart';
+import '../api_service.dart'; // Ensure you update the path accordingly.
 
 
 class ProfileScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class _ProfileScreen extends State<ProfileScreen> {
   String userName = '';  // Initial value
   String status = '';
   String phoneNumber = ''; // Initial value
+  final ApiService apiService = ApiService();
 
   @override
   void initState() {
@@ -293,7 +295,11 @@ class _ProfileScreen extends State<ProfileScreen> {
                       () => _launchURL('https://forms.gle/aoeoqR64c9nQEAYi6'),
                 ),
                 const SizedBox(height: 15),
-                _buildProfileOptionContainer('تسجيل الخروج', Icons.exit_to_app, color: Colors.red),
+  _buildProfileOptionContainerContactUs(
+                  'تسجيل الخروج',
+                    Icons.exit_to_app,
+                         () => ApiService().logout(context),
+                ),
               ],
             ),
           ),
@@ -377,4 +383,5 @@ class _ProfileScreen extends State<ProfileScreen> {
     );
   }
 }
+
 

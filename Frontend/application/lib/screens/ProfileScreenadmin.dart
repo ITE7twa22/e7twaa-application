@@ -128,14 +128,14 @@ class _ProfileScreenState extends State<ProfileScreenadmin> {
     });
 
     switch (index) {
-      case 0:
-        break;
-        break;
-      case 1:
-        _navigateToScreen(const HomeScreen());
-      case 2:
-        _navigateToScreen(const VolunteerJourneyScreen());
-        break;
+      // case 0:
+      //   break;
+      //   break;
+      // case 1:
+      //   _navigateToScreen(const HomeScreen());
+      // case 2:
+      //   _navigateToScreen(const VolunteerJourneyScreen());
+      //   break;
     }
   }
   void _showCertificatesSheet() {

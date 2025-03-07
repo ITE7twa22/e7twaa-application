@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
+import 'package:flutter/material.dart';
+import './screens/login_screen.dart';
 
 class ApiService {
-  final String apiUrl = "http://8.213.22.228/api";
+  final String apiUrl = "http://127.0.0.1:8001/api";
 Future<http.Response> checkUser(String nationalId, String phoneNumber) async {
   final Uri url = Uri.parse('$apiUrl/checkUser');
 
@@ -140,6 +142,50 @@ Future<http.Response> login(String nationalId, String phoneNumber, String code) 
       return response;
     } catch (e) {
       throw Exception("خطأ في الاتصال: $e");
+    }
+  }
+  Future<void> logout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('jwt_token'); // جلب التوكن من التخزين المؤقت
+
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("لم يتم العثور على توكن الدخول"),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
+
+    final Uri url = Uri.parse('$apiUrl/logout');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // حذف التوكن من SharedPreferences
+        await prefs.remove('token');
+
+        // الانتقال إلى شاشة تسجيل الدخول
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("فشل تسجيل الخروج: ${jsonDecode(response.body)['message']}"),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("حدث خطأ أثناءج"),
+        backgroundColor: Colors.red,
+      ));
     }
   }
 }

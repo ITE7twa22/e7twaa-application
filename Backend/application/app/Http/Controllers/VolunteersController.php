@@ -88,9 +88,9 @@ class VolunteersController extends Controller
         $code = (int) trim($request->input(key: 'code'));
         $phoneNumber = trim($request->input('PhoneNumber'));
     
-        // if (!$NationalID || !$phoneNumber) {
-        //     return response()->json(['message' => 'بيانات تسجيل الدخول غير صحيحة'], 401);
-        // }
+        if (!$NationalID || !$phoneNumber) {
+            return response()->json(['message' => 'بيانات تسجيل الدخول غير صحيحة'], 401);
+        }
     
         try {
             $projectId = env('GOOGLE_CLOUD_PROJECT');
@@ -134,6 +134,7 @@ class VolunteersController extends Controller
                 'sub' => $userDoc->id(),
                 'phoneNumber' => $userData['PhoneNumber'],
                 'nationalID' => $userData['NationalID'],
+                'code' => $userData['Code'],
                 'iat' => time(),
                 'exp' => time() + (60 * 60 * 24 * 20), // Token valid for 20 days
             ];
@@ -160,10 +161,10 @@ class VolunteersController extends Controller
             JWT::decode($token, new Key($jwtSecret, 'HS256'));
 
             // حفظ التوكن المحظور في Firestore
-            $this->firestore->collection('BlacklistedTokens')->document($token)->set([
-                'token' => $token,
-                'expires_at' => Carbon::now()->addWeek(),
-            ]);
+            // $this->firestore->collection('BlacklistedTokens')->document($token)->set([
+            //     'token' => $token,
+            //     'expires_at' => Carbon::now()->addWeek(),
+            // ]);
 
             return response()->json(['message' => 'تم تسجيل الخروج بنجاح'], 200);
         } catch (ExpiredException $e) {
@@ -316,5 +317,101 @@ class VolunteersController extends Controller
             return response()->json(['error' => 'Invalid or expired token'], 401);
         }
     }
+
+    public function totalHours(Request $request)
+    {
+        // Get the bearer token from the request header
+        $token = $request->bearerToken();
     
-}
+        if (!$token) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        try {
+            // Decode the JWT token
+            $jwtSecret = Config::get('app.jwt_secret');
+            $decoded = JWT::decode($token, new Key($jwtSecret, 'HS256'));
+    
+            // Extract user details from the decoded JWT token
+            $userId = $decoded->sub ?? null;
+            $nationalID = $decoded->nationalID ?? null;
+            $code = $decoded->code ?? null;
+    
+            if (!$userId || !$nationalID) {
+                return response()->json(['error' => 'Invalid token'], 400);
+            }
+    
+            // Initialize Firestore client
+            $projectId = env('GOOGLE_CLOUD_PROJECT');
+            $firestore = new FirestoreClient([
+                'projectId' => $projectId,
+            ]);
+    
+            ini_set('max_execution_time', 60);
+    
+            // Query Firestore for attendance records based on the nationalID
+            $attendanceRef = $firestore->collection('Attendance');
+            $query = $attendanceRef->where('VolunteerID', '=', $code);
+            $documents = $query->documents();
+    
+            $totalHours = 0;
+    
+            foreach ($documents as $document) {
+                if ($document->exists()) {
+                    $data = $document->data();
+                    $hours = $data['Hours'] ?? '0'; // Default to '0' if 'Hours' is missing
+                    $loginDateTime = $data['LoginDateTime'] ?? null;
+    
+                    // Debugging the raw LoginDateTime
+    
+                    if ($loginDateTime) {
+                        // Remove the timezone part using regular expression
+                        $dateTimeString = preg_replace('/ UTC[+-]\d+/', '', $loginDateTime); // Remove timezone (e.g., " UTC+3")
+                        // var_dump("DateTimeString after timezone removal:", $dateTimeString);
+    
+                        // Parse the LoginDateTime string into a DateTime object
+                        $dateTime = \DateTime::createFromFormat('F j, Y at h:i:s A', $dateTimeString);
+                        // var_dump('Parsed DateTime:', $dateTime);
+    
+                        if ($dateTime) {
+                            $month = (int) $dateTime->format('m');
+                            var_dump('Month:', $month);
+    
+                            if ($month === 3) {
+                                // var_dump(value: "Raw LoginDateTime:");
+
+                                // Convert Hours if necessary (from string "HH:MM:SS" to decimal)
+                                if (is_string($hours) && preg_match('/^(\d{2}):(\d{2}):(\d{2})$/', $hours, $matches)) {
+                                    $hour = (int) $matches[1];
+                                    $minute = (int) $matches[2];
+                                    $second = (int) $matches[3];
+    
+                                    $decimalHours = $hour + ($minute / 60) + ($second / 3600);
+                                    $hours = $decimalHours;
+                                }
+    
+                                // var_dump(value: 'Converted Hours:', $hours);
+    
+                                if (is_numeric($hours)) {
+                                    $totalHours += $hours;
+                                } else {
+                                    $totalHours += 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    
+            return response()->json([
+                'status' => 'success',
+                'code' => $code,
+                'total_hours_march' => $totalHours
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Invalid token or Firestore error', 'message' => $e->getMessage()], 400);
+        }
+    }
+    
+    
+}    
