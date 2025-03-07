@@ -52,7 +52,7 @@ class _ProfileScreen extends State<ProfileScreen> {
         break;
         break;
       case 1:
-        _navigateToScreen(const home_screen());
+        _navigateToScreen(const HomeScreen());
       case 2:
         _navigateToScreen(const VolunteerJourneyScreen());
         break;
