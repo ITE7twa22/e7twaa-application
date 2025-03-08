@@ -20,7 +20,7 @@ Route::get('/test', function () {
 
 Route::get('/test', function () {
     try {
-        $firebase = (new Factory)->withServiceAccount(storage_path('app/firebase/volunteersdata-cf17b-firebase-adminsdk-fbsvc-a5f56172ff.json'));
+        $firebase = (new Factory)->withServiceAccount(storage_path('app/firebase/volunteersdata-cf17b-firebase-adminsdk-fbsvc-f1d035e292.json'));
         $db = $firebase->createFirestore()->database();
         $collection = $db->collection('Volunteers');
         $documents = $collection->documents();
@@ -38,7 +38,7 @@ Route::get('/test', function () {
 });
 
 Route::get('/check-firebase-key', function () {
-    $path = base_path('storage/app/firebase/volunteersdata-cf17b-firebase-adminsdk-fbsvc-a5f56172ff.json');
+    $path = base_path('storage/app/firebase/volunteersdata-cf17b-firebase-adminsdk-fbsvc-f1d035e292.json');
 
     if (!file_exists($path)) {
         return response()->json(['error' => 'Firebase credentials file not found!'], 404);
@@ -50,7 +50,7 @@ Route::get('/check-firebase-key', function () {
 });
 
 Route::get('/test-firebase-auth', function () {
-    $path = base_path('storage/app/firebase/volunteersdata-cf17b-firebase-adminsdk-fbsvc-a5f56172ff.json');
+    $path = base_path('storage/app/firebase/volunteersdata-cf17b-firebase-adminsdk-fbsvc-f1d035e292.json');
 
     if (!file_exists($path)) {
         return response()->json(['error' => 'Firebase credentials file not found!'], 404);

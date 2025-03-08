@@ -28,7 +28,10 @@ class _HomeScreenState extends State<HomeScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('firstName') ?? 'User';
   }
-
+  Future<String> getTotalHours() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('totalHours') ?? '0';
+  }
   Future<void> _getUserLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -283,12 +286,25 @@ void _onItemTapped(int index) {
                 Container(
                   padding: const EdgeInsets.only(right: 23),
                   alignment: Alignment.centerRight,
-                  child: const Text(
-                    'ساهمت بـ 100 ساعة تطوعية في كسوة فرح',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                    ),
+                  child: FutureBuilder<String>(
+                    future: getTotalHours(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return const Text('Error fetching hours');
+                      } else if (snapshot.hasData) {
+                        return Text(
+                          'ساهمت بـ ${snapshot.data} ساعة تطوعية في كسوة فرح',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black54,
+                          ),
+                        );
+                      } else {
+                        return const Text('ساهمت بـ 0 ساعة تطوعية في كسوة فرح');
+                      }
+                    },
                   ),
                 ),
                 const SizedBox(height: 80),

@@ -16,7 +16,7 @@ class FirebaseService
     private function __construct()
     {
         $factory = (new Factory)
-            ->withServiceAccount(storage_path('app/firebase/volunteersdata-cf17b-firebase-adminsdk-fbsvc-a5f56172ff.json'))
+            ->withServiceAccount(storage_path('app/firebase/volunteersdata-cf17b-firebase-adminsdk-fbsvc-f1d035e292.json'))
             ->withDatabaseUri(config('firebase.database.url'));
 
         $this->auth = $factory->createAuth();

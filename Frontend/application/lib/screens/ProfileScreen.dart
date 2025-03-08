@@ -120,29 +120,27 @@ class _ProfileScreen extends State<ProfileScreen> {
                     ),
                   )
                   ,
+SizedBox(height: 30),
+Align(
+  alignment: Alignment.centerRight,
+  child: Text(
+    'الرقم',
+    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    textAlign: TextAlign.right, // يضمن أن النص مكتوب من اليمين
+  ),
+),
+SizedBox(height: 10),
+Row(
+  mainAxisAlignment: MainAxisAlignment.end, // يجعل المحتوى يصطف إلى اليمين
+  children: [
+    Text(
+      phoneNumber,
+      textAlign: TextAlign.right, // يجعل النص محاذيًا لليمين
+      textDirection: TextDirection.rtl, // يضمن أن الأرقام تظهر بشكل صحيح في اليمين
+    ),
+  ],
+),
 
-                  SizedBox(height: 30),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      'الرقم',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-
-                    children: [
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          phoneNumber,
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-
-                    ],
-                  ),
                   SizedBox(height: 90),
                   Center(
                     child: ElevatedButton(

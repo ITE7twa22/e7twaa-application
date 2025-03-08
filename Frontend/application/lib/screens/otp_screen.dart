@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';  
 import 'package:shared_preferences/shared_preferences.dart';
+import 'home_screen.dart';
+import '../api_service.dart'; // Ensure you update the path accordingly.
 
 class OtpScreen extends StatefulWidget {
   const OtpScreen({super.key});
@@ -11,8 +12,9 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   bool isLoading = false;
+  final ApiService apiService = ApiService(); // Ensure it's defined
   final List<TextEditingController> _controllers =
-      List.generate(4, (index) => TextEditingController()); // Fix: 4 controllers
+      List.generate(4, (index) => TextEditingController());
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -32,7 +34,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
   Future<void> loginUser(String otpCode) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    print("**********");
     print(otpCode);
     final String nationalId = prefs.getString('NationalID') ?? 'User';
     final String phoneNumber = prefs.getString('PhoneNumber') ?? 'User';
@@ -40,7 +42,6 @@ class _OtpScreenState extends State<OtpScreen> {
     setState(() => isLoading = true);
 
     try {
-      // Ensure apiService is defined
       final response = await apiService.login(nationalId, phoneNumber, otpCode);
 
       if (response.statusCode == 200) {
@@ -57,6 +58,26 @@ class _OtpScreenState extends State<OtpScreen> {
     }
   }
 
+Widget _buildSubmitButton() {
+  return SizedBox(
+    width: double.infinity,
+    height: 55,
+    child: ElevatedButton(
+      onPressed: isLoading
+          ? null
+          : () => loginUser(_controllers.map((c) => c.text).join()), // Fixed
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFFFBB040),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: isLoading
+          ? const CircularProgressIndicator(color: Colors.white)
+          : const Text('المتابعة',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.white)),
+    ),
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,9 +85,9 @@ class _OtpScreenState extends State<OtpScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        automaticallyImplyLeading: false,  
+        automaticallyImplyLeading: false,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,  
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -74,31 +95,24 @@ class _OtpScreenState extends State<OtpScreen> {
             ),
             const Text(
               'أدخل الرمز',
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black),
             ),
           ],
         ),
       ),
       body: Stack(
         children: [
-          // Background Image
           Positioned.fill(
             child: Image.asset(
-              'assets/background_image.jpeg',  
-              fit: BoxFit.contain,  
+              'assets/background_image.jpeg',
+              fit: BoxFit.cover,
             ),
           ),
-          // Main Content
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Subtitle (Below Title)
                 const Align(
                   alignment: Alignment.centerRight,
                   child: Text(
@@ -107,11 +121,10 @@ class _OtpScreenState extends State<OtpScreen> {
                   ),
                 ),
                 const SizedBox(height: 160),
-                // OTP Input Fields
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
-                    4, // Ensure only 4 fields
+                    4,
                     (index) => Container(
                       width: 59,
                       height: 59,
@@ -132,21 +145,19 @@ class _OtpScreenState extends State<OtpScreen> {
                         ),
                         onChanged: (value) {
                           if (value.isNotEmpty) {
-                            if (index < 3) { // Ensure correct focus handling
+                            if (index < 3) {
                               FocusScope.of(context).nextFocus();
-                            } else {
-                              // Check if all fields are filled
-                              String otpCode = _controllers.map((c) => c.text).join();
-                              if (otpCode.length == 4) { // Validate for 4-digit OTP
-                                loginUser(otpCode);
-                              }
                             }
+                          } else if (index > 0) {
+                            FocusScope.of(context).previousFocus();
                           }
                         },
                       ),
                     ),
                   ),
                 ),
+                const SizedBox(height: 40),
+                _buildSubmitButton(),
               ],
             ),
           ),

@@ -17,7 +17,7 @@ class VolunteersController extends Controller
 
     public function __construct()
     {
-        $factory = (new Factory)->withServiceAccount(storage_path('app/firebase/volunteersdata-cf17b-firebase-adminsdk-fbsvc-a5f56172ff.json'));
+        $factory = (new Factory)->withServiceAccount(storage_path('app/firebase/volunteersdata-cf17b-firebase-adminsdk-fbsvc-f1d035e292.json'));
         $this->firestore = $factory->createFirestore()->database();
     }
 
@@ -141,8 +141,14 @@ class VolunteersController extends Controller
     
             $jwtSecret = Config::get('app.jwt_secret');
             $token = JWT::encode($payload, $jwtSecret, 'HS256');
-    
-            return response()->json(['token' => $token, 'user' => $userData], 200);
+            $result = $this->totalHours($token)->getData(true); // Convert to an associative array
+ 
+            return response()->json([
+                'token' => $token,
+                'user' => $userData,
+                'total_hours' => $result['total_hours'] ?? 0  // Ensure default value in case key is missing
+            ], 200);
+            
     
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
@@ -318,100 +324,57 @@ class VolunteersController extends Controller
         }
     }
 
-    public function totalHours(Request $request)
+    public function totalHours($token)
     {
-        // Get the bearer token from the request header
-        $token = $request->bearerToken();
-    
         if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
     
         try {
-            // Decode the JWT token
             $jwtSecret = Config::get('app.jwt_secret');
             $decoded = JWT::decode($token, new Key($jwtSecret, 'HS256'));
     
-            // Extract user details from the decoded JWT token
-            $userId = $decoded->sub ?? null;
-            $nationalID = $decoded->nationalID ?? null;
             $code = $decoded->code ?? null;
-    
-            if (!$userId || !$nationalID) {
+            if (!$code) {
                 return response()->json(['error' => 'Invalid token'], 400);
             }
     
-            // Initialize Firestore client
-            $projectId = env('GOOGLE_CLOUD_PROJECT');
-            $firestore = new FirestoreClient([
-                'projectId' => $projectId,
-            ]);
+            $firestore = new FirestoreClient(['projectId' => env('GOOGLE_CLOUD_PROJECT')]);
     
-            ini_set('max_execution_time', 60);
+            // Define the start and end of March 2025 as Firestore Timestamps
+            $startDate = new \Google\Cloud\Core\Timestamp(new \DateTime('2025-03-01 00:00:00 UTC'));
+            $endDate = new \Google\Cloud\Core\Timestamp(new \DateTime('2025-03-31 23:59:59 UTC'));
     
-            // Query Firestore for attendance records based on the nationalID
-            $attendanceRef = $firestore->collection('Attendance');
-            $query = $attendanceRef->where('VolunteerID', '=', $code);
+            // Query attendance records for March 2025
+            $query = $firestore->collection('Attendance')
+                ->where('VolunteerID', '=', $code)
+                ->where('LoginDateTime', '>=', $startDate)
+                ->where('LoginDateTime', '<=', $endDate);
+    
             $documents = $query->documents();
     
             $totalHours = 0;
-    
             foreach ($documents as $document) {
                 if ($document->exists()) {
                     $data = $document->data();
-                    $hours = $data['Hours'] ?? '0'; // Default to '0' if 'Hours' is missing
-                    $loginDateTime = $data['LoginDateTime'] ?? null;
+                    $hours = $data['Hours'] ?? '00:00:00';
     
-                    // Debugging the raw LoginDateTime
+                    if (preg_match('/^(\d{2}):(\d{2}):(\d{2})$/', $hours, $matches)) {
+                        $hour = (int) $matches[1];
+                        $minute = (int) $matches[2];
+                        $second = (int) $matches[3];
     
-                    if ($loginDateTime) {
-                        // Remove the timezone part using regular expression
-                        $dateTimeString = preg_replace('/ UTC[+-]\d+/', '', $loginDateTime); // Remove timezone (e.g., " UTC+3")
-                        // var_dump("DateTimeString after timezone removal:", $dateTimeString);
-    
-                        // Parse the LoginDateTime string into a DateTime object
-                        $dateTime = \DateTime::createFromFormat('F j, Y at h:i:s A', $dateTimeString);
-                        // var_dump('Parsed DateTime:', $dateTime);
-    
-                        if ($dateTime) {
-                            $month = (int) $dateTime->format('m');
-                            var_dump('Month:', $month);
-    
-                            if ($month === 3) {
-                                // var_dump(value: "Raw LoginDateTime:");
-
-                                // Convert Hours if necessary (from string "HH:MM:SS" to decimal)
-                                if (is_string($hours) && preg_match('/^(\d{2}):(\d{2}):(\d{2})$/', $hours, $matches)) {
-                                    $hour = (int) $matches[1];
-                                    $minute = (int) $matches[2];
-                                    $second = (int) $matches[3];
-    
-                                    $decimalHours = $hour + ($minute / 60) + ($second / 3600);
-                                    $hours = $decimalHours;
-                                }
-    
-                                // var_dump(value: 'Converted Hours:', $hours);
-    
-                                if (is_numeric($hours)) {
-                                    $totalHours += $hours;
-                                } else {
-                                    $totalHours += 0;
-                                }
-                            }
-                        }
+                        $totalHours += $hour + ($minute / 60) + ($second / 3600);
                     }
                 }
             }
     
-            return response()->json([
-                'status' => 'success',
-                'code' => $code,
-                'total_hours_march' => $totalHours
-            ], 200);
+            return response()->json(['total_hours' => round($totalHours)], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Invalid token or Firestore error', 'message' => $e->getMessage()], 400);
         }
     }
+    
     
     
 }    
