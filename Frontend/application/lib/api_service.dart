@@ -32,10 +32,10 @@ Future<http.Response> checkUser(String nationalId, String phoneNumber) async {
         await prefs.setString("PhoneNumber", user['PhoneNumber'].toString());
         await prefs.setString("code", user['code'].toString());
       } else {
-        throw Exception("User data not found in response.");
+        throw Exception("المستخدم غير موجود");
       }
     } else {
-      throw Exception("Failed to check user. Status code: ${response.statusCode}");
+      throw Exception("حدث خطأ عند استرجاع معلومات المستخدم");
     }
 
     return response;
