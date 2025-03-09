@@ -6,11 +6,10 @@ import 'package:flutter/material.dart';
 import './screens/login_screen.dart';
 
 class ApiService {
-  final String apiUrl = "http://127.0.0.1:8001/api";
+  final String apiUrl = "http://8.213.22.228/api";
 Future<http.Response> checkUser(String nationalId, String phoneNumber) async {
   final Uri url = Uri.parse('$apiUrl/checkUser');
 
-  try {
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -31,17 +30,13 @@ Future<http.Response> checkUser(String nationalId, String phoneNumber) async {
         await prefs.setString("NationalID", user['NationalID'].toString());
         await prefs.setString("PhoneNumber", user['PhoneNumber'].toString());
         await prefs.setString("code", user['code'].toString());
-      } else {
-        throw Exception("المستخدم غير موجود");
       }
-    } else {
-      throw Exception("حدث خطأ عند استرجاع معلومات المستخدم");
-    }
+    } 
+    // } else {
+    //   throw Exception("حدث خطأ عند استرجاع معلومات المستخدم");
+    // }
 
     return response;
-  } catch (e) {
-    throw Exception("خطأ في الاتصال: ${e.toString()}");
-  }
 }
 
 

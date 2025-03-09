@@ -64,9 +64,9 @@ class _ProfileScreen extends State<ProfileScreen> {
   Future<void> getNameUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      userName = prefs.getString('ArabicName') ?? 'User';  // Update the value and rebuild
-      status = prefs.getString('status') ?? 'status';  // Update the value and rebuild
-      phoneNumber = prefs.getString('phoneNumber') ?? 'phoneNumber';  // Update the value and rebuild
+      userName = prefs.getString('ArabicName') ?? 'User';  
+      status = prefs.getString('status') ?? 'status';  
+      phoneNumber = prefs.getString('PhoneNumber') ?? 'phoneNumber';  
     });
   }
   void _launchURL(String url) async {

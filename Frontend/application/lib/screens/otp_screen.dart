@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
-import '../api_service.dart'; // Ensure you update the path accordingly.
+import '../api_service.dart'; 
 
 class OtpScreen extends StatefulWidget {
   const OtpScreen({super.key});
@@ -12,7 +12,7 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   bool isLoading = false;
-  final ApiService apiService = ApiService(); // Ensure it's defined
+  final ApiService apiService = ApiService(); 
   final List<TextEditingController> _controllers =
       List.generate(4, (index) => TextEditingController());
 
@@ -58,25 +58,31 @@ class _OtpScreenState extends State<OtpScreen> {
     }
   }
 
-Widget _buildSubmitButton() {
-  return SizedBox(
-    width: double.infinity,
-    height: 55,
-    child: ElevatedButton(
-      onPressed: isLoading
-          ? null
-          : () => loginUser(_controllers.map((c) => c.text).join()), // Fixed
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFFBB040),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  Widget _buildSubmitButton() {
+    return SizedBox(
+      width: 300,
+      height: 55,
+      child: ElevatedButton(
+        onPressed: isLoading
+            ? null
+            : () => loginUser(_controllers.map((c) => c.text).join()),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFFBB040),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        child: isLoading
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text(
+                'المتابعة',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white),
+              ),
       ),
-      child: isLoading
-          ? const CircularProgressIndicator(color: Colors.white)
-          : const Text('المتابعة',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.white)),
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +101,10 @@ Widget _buildSubmitButton() {
             ),
             const Text(
               'أدخل الرمز',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black),
+              style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
             ),
           ],
         ),
@@ -157,7 +166,9 @@ Widget _buildSubmitButton() {
                   ),
                 ),
                 const SizedBox(height: 40),
-                _buildSubmitButton(),
+                const SizedBox(height: 40),
+                Center(child: _buildSubmitButton()), 
+                const SizedBox(height: 20), 
               ],
             ),
           ),

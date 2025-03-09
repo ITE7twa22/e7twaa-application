@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:application/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/services.dart'; // Import for FilteringTextInputFormatter
+import 'package:flutter/services.dart'; 
 import 'otp_screen.dart';
-import '../api_service.dart'; // Ensure you update the path accordingly.
+import '../api_service.dart'; 
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -76,11 +76,11 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.of(context).push(
           MaterialPageRoute(builder: (context) => const OtpScreen()),
         );
-      } else if (response.statusCode == 404) {
+      } else  {
         _showErrorDialog("المستخدم غير موجود");
       }
     } catch (e) {
-      _showErrorDialog("خطأ في الاتصال: ${e.toString()}");
+      _showErrorDialog(e.toString());
     } finally {
       setState(() => isLoading = false);
     }
@@ -88,11 +88,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
   void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("خطأ"),
-        content: Text(message),
+  showDialog(
+    context: context,
+    builder: (context) => Directionality( 
+      textDirection: TextDirection.rtl,
+      child: AlertDialog(
+        title: const Text(
+          "خطأ",
+          textAlign: TextAlign.right,
+        ),
+        content: Text(
+          message,
+          textAlign: TextAlign.right,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -100,8 +108,10 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -170,23 +180,28 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildTextField(
-      TextEditingController controller, String hintText, bool isEmpty) {
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: _inputBoxDecoration(isEmpty),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 16),
-        ),
-        keyboardType: TextInputType.number,
-        textAlign: TextAlign.left,
+    TextEditingController controller, String hintText, bool isEmpty) {
+  return Container(
+    height: 50,
+    padding: const EdgeInsets.symmetric(horizontal: 12),
+    decoration: _inputBoxDecoration(isEmpty),
+    child: TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        hintText: hintText,
+        hintStyle: const TextStyle(color: Colors.grey, fontSize: 16),
       ),
-    );
-  }
+      keyboardType: TextInputType.number,
+      textInputAction: TextInputAction.done, 
+      textAlign: TextAlign.left,
+      onSubmitted: (value) {
+        FocusManager.instance.primaryFocus?.unfocus(); 
+      },
+    ),
+  );
+}
+
 
   Widget _buildPhoneNumberField() {
     return Container(

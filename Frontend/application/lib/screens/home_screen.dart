@@ -75,8 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (distance > 10.000) {
-      _showErrorDialog("يبدو أنك خارج الموقع المحدد لتسجيل الدخول.\n"
-          "تأكد من وجودك في المكان الصحيح ثم حاول مرة أخرى.");
+      _showErrorDialog("يبدو أنك خارج الموقع المحدد لتسجيل الدخول\n"
+          "تأكد من وجودك في المكان الصحيح ثم حاول مرة أخرى");
     }
     else{
       if (!checkIn) {
@@ -102,9 +102,11 @@ void _navigateToScreen(Widget screen) {
     );
   }
   void __showErrorDialogConfirm(String token, String m) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+  showDialog(
+    context: context,
+    builder: (context) => Directionality( // Ensuring RTL text direction for Arabic
+      textDirection: TextDirection.rtl,
+      child: AlertDialog(
         title: const Text("تأكيد"),
         content: Text(m),
         actions: [
@@ -131,11 +133,12 @@ void _navigateToScreen(Widget screen) {
                 setState(() {
                   checkOutToday = TimeOfDay.now();
 
-                  if (checkIn != null) {
+                  if (checkInToday != null) {
+                    DateTime now = DateTime.now();
                     DateTime checkInDateTime = DateTime(
-                        0, 0, 0, checkInToday!.hour, checkInToday!.minute);
+                        now.year, now.month, now.day, checkInToday!.hour, checkInToday!.minute);
                     DateTime checkOutDateTime = DateTime(
-                        0, 0, 0, checkOutToday!.hour, checkOutToday!.minute);
+                        now.year, now.month, now.day, checkOutToday!.hour, checkOutToday!.minute);
                     duration = checkOutDateTime.difference(checkInDateTime);
                   }
                   checkIn = false;
@@ -146,18 +149,25 @@ void _navigateToScreen(Widget screen) {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("خطأ",
-          textAlign: TextAlign.center,
-          textDirection: TextDirection.rtl,
+
+    void _showErrorDialog(String message) {
+  showDialog(
+    context: context,
+    builder: (context) => Directionality( // Ensure right-to-left alignment
+      textDirection: TextDirection.rtl,
+      child: AlertDialog(
+        title: const Text(
+          "خارج الموقع",
+          textAlign: TextAlign.right, // Align text to the right
         ),
-        content: Text(message),
+        content: Text(
+          message,
+          textAlign: TextAlign.right, // Align text to the right
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -165,8 +175,10 @@ void _navigateToScreen(Widget screen) {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
 void _onItemTapped(int index) {
     if (index == _selectedIndex) return;
