@@ -74,17 +74,16 @@ class _HomeScreenState extends State<HomeScreen> {
       print("Token retrieved: $token");
     }
 
-    if (distance > 10500) {
-      _showErrorDialog("يبدو أنك خارج الموقع المحدد لتسجيل الدخول.\n"
-          "تأكد من وجودك في المكان الصحيح ثم حاول مرة أخرى.");
-    }
-    else{
+    // if (distance > 10500) {
+    //   _showErrorDialog("يبدو أنك خارج الموقع المحدد لتسجيل الدخول.\n"
+    //       "تأكد من وجودك في المكان الصحيح ثم حاول مرة أخرى.");
+    // }
       if (!checkIn) {
         __showErrorDialogConfirm(token, "هل انت متأكد من تسجيل الدخول؟");
       } else {
         __showErrorDialogConfirm(token, "هل انت متأكد من تسجيل الخروج؟");
       }
-    }
+    
   }
 void _navigateToScreen(Widget screen) {
     Navigator.push(

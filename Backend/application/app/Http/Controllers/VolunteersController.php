@@ -242,6 +242,7 @@ class VolunteersController extends Controller
           
             $userId = $decoded->sub ?? null; 
             $nationalID = $decoded->nationalID ?? null; 
+            $code = $decoded->code ?? null; 
     
             if (!$userId) {
                 return response()->json(['error' => 'Invalid token'], 400);
@@ -254,12 +255,12 @@ class VolunteersController extends Controller
             $now = Carbon::now();
             $workDate = $now->hour < 6 ? $now->subDay()->format('Y-m-d') : $now->format('Y-m-d');
 
-            $attendanceRef = $firestore->collection('Attendance')->document("{$nationalID}-{$workDate}");
+            $attendanceRef = $firestore->collection('Attendance')->document("{$code}-{$workDate}");
             $now = Carbon::now();
             $attendanceRef->set([
-                'user_id' =>  $nationalID,
-                'login_time' => $now,
-                'logout_time' => null,
+                'VolunteerID' =>  $code,
+                'LoginDateTime' => $now,
+                'LogoutDateTime' => null,
                 'checked_in_app' => true, // ✅ هذا الفلاغ يشير إلى أن الحضور تم عبر التطبيق
             ]);
             
@@ -284,6 +285,7 @@ class VolunteersController extends Controller
     
             $userId = $decoded->sub ?? null;
             $nationalID = $decoded->nationalID ?? null;
+            $code = $decoded->code ?? null;
     
             if (!$userId) {
                 return response()->json(['error' => 'Invalid token'], 400);
@@ -299,7 +301,7 @@ class VolunteersController extends Controller
             $workDate = $now->hour < 6 ? $now->subDay()->format('Y-m-d') : $now->format('Y-m-d');
     
             // Get the document reference using the nationalID
-            $volunteerRef = $firestore->collection('Attendance')->document("{$nationalID}-{$workDate}");
+            $volunteerRef = $firestore->collection('Attendance')->document("{$code}-{$workDate}");
     
             // Check if the document exists
             $snapshot = $volunteerRef->snapshot();
@@ -309,14 +311,15 @@ class VolunteersController extends Controller
     
             // Update the logout_time field
             $volunteerRef->update([
-                ['path' => 'logout_time', 'value' => $now->toDateTimeString()],
+                ['path' => 'LogoutDateTime', 'value' =>  Carbon::now()],
             ]);
-            $loginTime = Carbon::parse($snapshot->get('login_time'));
-            $logoutTime = $now;
+            $loginTime = Carbon::parse($snapshot->get('LoginDateTime'));
+            $logoutTime =Carbon::now();
+
             $duration = $logoutTime->diff($loginTime);
             $formattedDuration = sprintf('%02d:%02d:%02d', $duration->h, $duration->i, $duration->s);
             $volunteerRef->update([
-                ['path' => 'hours', 'value' => $formattedDuration],
+                ['path' => 'Hours', 'value' => $formattedDuration],
             ]);
             return response()->json(['message' => 'Check-out successful']);
         } catch (\Exception $e) {
