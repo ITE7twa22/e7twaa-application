@@ -74,9 +74,9 @@ class _HomeScreenState extends State<HomeScreen> {
       print("Token retrieved: $token");
     }
 
-    if (distance > 10.000) {
-      _showErrorDialog("يبدو أنك خارج الموقع المحدد لتسجيل الدخول\n"
-          "تأكد من وجودك في المكان الصحيح ثم حاول مرة أخرى");
+    if (distance > 10500) {
+      _showErrorDialog("يبدو أنك خارج الموقع المحدد لتسجيل الدخول.\n"
+          "تأكد من وجودك في المكان الصحيح ثم حاول مرة أخرى.");
     }
     else{
       if (!checkIn) {
