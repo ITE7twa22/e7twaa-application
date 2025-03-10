@@ -87,7 +87,7 @@ void _onItemTapped(int index) {
             padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 60),
             child: const Center(
               child: Text(
-                "قريــبــا",
+                "قريــبــًا",
                 style: TextStyle(
                   fontSize: 60,
                   fontWeight: FontWeight.bold,
