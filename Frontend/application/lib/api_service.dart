@@ -61,6 +61,8 @@ Future<http.Response> login(String nationalId, String phoneNumber, String code) 
       if (responseData.containsKey('token') && responseData.containsKey('user')) {
         String token = responseData['token'];
         String totalHours = responseData['total_hours'].toString();
+        bool checkInToday = responseData['checkInToday'];
+
         Map<String, dynamic> user = responseData['user'];
 
         String arabicName = user['ArabicName'] ?? '';
@@ -74,6 +76,7 @@ Future<http.Response> login(String nationalId, String phoneNumber, String code) 
         await prefs.setString('firstName', firstName);
         await prefs.setString('status', status);
         await prefs.setString('totalHours', totalHours);
+        await prefs.setBool('checkInToday', checkInToday);
 
         print(totalHours);
       } else {

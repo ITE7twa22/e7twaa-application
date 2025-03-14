@@ -82,78 +82,7 @@ class VolunteersController extends Controller
         }
     }
 
-    public function login(Request $request)
-    {
-        $NationalID = (int) trim($request->input(key: 'NationalID'));
-        $code = (int) trim($request->input(key: 'code'));
-        $phoneNumber = trim($request->input('PhoneNumber'));
     
-        if (!$NationalID || !$phoneNumber) {
-            return response()->json(['message' => 'بيانات تسجيل الدخول غير صحيحة'], 401);
-        }
-    
-        try {
-            $projectId = env('GOOGLE_CLOUD_PROJECT');
-            $firestore = new FirestoreClient([
-                'projectId' => $projectId,
-            ]);
-            ini_set('max_execution_time', 60);
-    
-            // Query Firestore for NationalID
-            $query = $firestore->collection('Volunteers')
-            ->where('NationalID', '=', $NationalID)
-            ->where('Code', '=', $code)
-            ->limit(1);
-    
-            $documents = $query->documents();
-    
-            if ($documents->isEmpty()) {
-                return response()->json(['message' => 'بيانات تسجيل الدخول غير صحيحة'], 401);
-            }
-    
-            // Get first matching document
-            $userDoc = $documents->rows()[0];
-            $userData = $userDoc->data();
-    
-            // Check if PhoneNumber contains the input
-            if (strpos($userData['PhoneNumber'], $phoneNumber) === false) {
-                return response()->json(['message' => 'بيانات تسجيل الدخول غير صحيحة'], 401);
-            }
-    
-            // Check if the old token is blacklisted
-            $oldToken = $request->bearerToken();
-            if ($oldToken) {
-                $blacklistedToken = $firestore->collection('BlacklistedTokens')->document($oldToken)->snapshot();
-                if ($blacklistedToken->exists()) {
-                    return response()->json(['message' => 'تم تسجيل الخروج، الرجاء تسجيل الدخول مجددًا'], 401);
-                }
-            }
-    
-            // Generate JWT Token
-            $payload = [
-                'sub' => $userDoc->id(),
-                'phoneNumber' => $userData['PhoneNumber'],
-                'nationalID' => $userData['NationalID'],
-                'code' => $userData['Code'],
-                'iat' => time(),
-                'exp' => time() + (60 * 60 * 24 * 20), // Token valid for 20 days
-            ];
-    
-            $jwtSecret = Config::get('app.jwt_secret');
-            $token = JWT::encode($payload, $jwtSecret, 'HS256');
-            $result = $this->totalHours($token)->getData(true); // Convert to an associative array
- 
-            return response()->json([
-                'token' => $token,
-                'user' => $userData,
-                'total_hours' => $result['total_hours'] ?? 0  // Ensure default value in case key is missing
-            ], 200);
-            
-    
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
-        }
-    }
     public function logout(Request $request)
     {
         $token = $request->bearerToken();
@@ -377,7 +306,112 @@ class VolunteersController extends Controller
             return response()->json(['error' => 'Invalid token or Firestore error', 'message' => $e->getMessage()], 400);
         }
     }
+    public function login(Request $request)
+{
+    $NationalID = (int) trim($request->input(key: 'NationalID'));
+    $code = (int) trim($request->input(key: 'code'));
+    $phoneNumber = trim($request->input('PhoneNumber'));
+
+    if (!$NationalID || !$phoneNumber) {
+        return response()->json(['message' => 'بيانات تسجيل الدخول غير صحيحة'], 401);
+    }
+
+    try {
+        $projectId = env('GOOGLE_CLOUD_PROJECT');
+        $firestore = new FirestoreClient([
+            'projectId' => $projectId,
+        ]);
+        ini_set('max_execution_time', 60);
+
+        // Query Firestore for NationalID
+        $query = $firestore->collection('Volunteers')
+            ->where('NationalID', '=', $NationalID)
+            ->where('Code', '=', $code)
+            ->limit(1);
+
+        $documents = $query->documents();
+
+        if ($documents->isEmpty()) {
+            return response()->json(['message' => 'بيانات تسجيل الدخول غير صحيحة'], 401);
+        }
+
+        // Get first matching document
+        $userDoc = $documents->rows()[0];
+        $userData = $userDoc->data();
+
+        // Check if PhoneNumber contains the input
+        if (strpos($userData['PhoneNumber'], $phoneNumber) === false) {
+            return response()->json(['message' => 'بيانات تسجيل الدخول غير صحيحة'], 401);
+        }
+
+        // Check if the old token is blacklisted
+        $oldToken = $request->bearerToken();
+        if ($oldToken) {
+            $blacklistedToken = $firestore->collection('BlacklistedTokens')->document($oldToken)->snapshot();
+            if ($blacklistedToken->exists()) {
+                return response()->json(['message' => 'تم تسجيل الخروج، الرجاء تسجيل الدخول مجددًا'], 401);
+            }
+        }
+
+        // Generate JWT Token
+        $payload = [
+            'sub' => $userDoc->id(),
+            'phoneNumber' => $userData['PhoneNumber'],
+            'nationalID' => $userData['NationalID'],
+            'code' => $userData['Code'],
+            'iat' => time(),
+            'exp' => time() + (60 * 60 * 24 * 20), // Token valid for 20 days
+        ];
+
+        $jwtSecret = Config::get('app.jwt_secret');
+        $token = JWT::encode($payload, $jwtSecret, 'HS256');
+        $result = $this->totalHours($token)->getData(true); // Convert to an associative array
+        $checkInToday = $this->checkInToday($userData['Code']); // Directly get data
+
+        return response()->json([
+            'token' => $token,
+            'user' => $userData,
+            'total_hours' => $result['total_hours'] ?? 0 , // Ensure default value in case key is missing
+            'checkInToday' => $checkInToday['checkInToday'] ?? false // Ensure default value in case key is missing
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json(['message' => $e->getMessage()], 500);
+    }
+}
+
     
-    
+    public function checkInToday($code)
+{
+    try {
+        $firestore = new FirestoreClient(['projectId' => env('GOOGLE_CLOUD_PROJECT')]);
+
+        $timezone = new \DateTimeZone('UTC');
+        $today = (new \DateTime('now', $timezone))->setTime(0, 0, 0);
+        $tomorrow = (clone $today)->modify('+1 day');
+
+        $startDate = new \Google\Cloud\Core\Timestamp($today);
+        $endDate = new \Google\Cloud\Core\Timestamp($tomorrow);
+
+        $query = $firestore->collection('Attendance')
+            ->where('VolunteerID', '=', $code)
+            ->where('LoginDateTime', '>=', $startDate)
+            ->where('LoginDateTime', '<', $endDate);
+
+        $documents = $query->documents();
+
+        // Log documents to debug if needed
+        \Log::info('Documents retrieved:', ['documents' => $documents->rows()]);
+
+        // Check if any document exists
+        if (!$documents->isEmpty()) {
+            return ['checkInToday' => true];
+        }
+
+        return ['checkInToday' => false];
+    } catch (\Exception $e) {
+        return ['error' => 'Invalid token or Firestore error', 'message' => $e->getMessage()];
+    }
+}
+
     
 }    

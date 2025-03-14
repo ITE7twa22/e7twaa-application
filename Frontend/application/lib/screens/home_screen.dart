@@ -13,7 +13,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 final ApiService apiService = ApiService();
-bool checkIn = false;
 TimeOfDay? checkInToday;
 TimeOfDay? checkOutToday;
 Duration? duration;
@@ -23,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isPressed = false;
   double? workLatitude = 24.8340996;
   double? workLongitude =  46.7280004;
+ bool checkIn = false;
 
   Future<String> getNameUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -31,6 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<String> getTotalHours() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('totalHours') ?? '0';
+  }
+
+  Future<void> getCheckInToday() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      checkIn = prefs.getBool('checkInToday') ?? false;
+    });
   }
   Future<void> _getUserLocation() async {
     bool serviceEnabled;
@@ -197,6 +204,12 @@ void _onItemTapped(int index) {
         _navigateToScreen(const VolunteerJourneyScreen());
         break;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getCheckInToday();
   }
 
   @override
